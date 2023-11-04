@@ -2,13 +2,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 import multiprocessing
-import copy
 import random
 import time
 
 from matplotlib.animation import FuncAnimation
 
 matplotlib.use('macosx')
+# matplotlib.use('TkAgg')
+
 
 def load_points(matrix, points_x: list, points_y: list):
     if len(points_x) != len(points_y):
@@ -67,7 +68,6 @@ def count_cells(matrix, i_c, j_c, kernel, n, m):
 
 
 def check_born_or_die(i, j, matrix, kernel, n, m, rules_born, rules_die):
-
     count = count_cells(matrix=matrix, i_c=i, j_c=j, kernel=kernel, n=n, m=m)
 
     if matrix[i][j] == 0:  # born
@@ -86,15 +86,17 @@ def check_born_or_die(i, j, matrix, kernel, n, m, rules_born, rules_die):
 def task(start_i, end_i, start_j, end_j, matrix, kernel, n, m, rules_born, rules_die, matrix_tmp, pipe):
     for i_o in range(start_i, end_i):
         for j_o in range(start_j, end_j):
-            matrix_tmp[i_o][j_o] = check_born_or_die(i=i_o, j=j_o, matrix=matrix, kernel=kernel, n=n, m=m, rules_born=rules_born, rules_die=rules_die)
+            matrix_tmp[i_o][j_o] = check_born_or_die(i=i_o, j=j_o, matrix=matrix, kernel=kernel, n=n, m=m,
+                                                     rules_born=rules_born, rules_die=rules_die)
     pipe.send(matrix_tmp)
+
 
 if __name__ == '__main__':
     rules_born, rules_die = translate_rules('23/3')
     n = 600
     m = 600
     kernel = create_kernel(outer_radius=10, inner_radius=1)
-    matrix = np.zeros((n,m))
+    matrix = np.zeros((n, m))
     # load_file(matrix, 'data.dat')
     load_points(matrix, points_x=[random.randint(0, 599) for _ in range(1000)],
                 points_y=[random.randint(0, 599) for _ in range(1000)])
@@ -107,16 +109,21 @@ if __name__ == '__main__':
     fig = plt.figure(figsize=(8, 8))
     im = plt.imshow(matrix, cmap='jet', interpolation='nearest')
     plt.axis('off')
-    # for l in range(20):
     count = 0
+
+
     def animation_loop(frame):
         start = time.process_time()
         global matrix
         matrix_tmp = np.zeros((n, m))
-        p1 = multiprocessing.Process(target=task, args=(0, int(n / 2), 0, int(m / 2), matrix, kernel, n, m, rules_born, rules_die, matrix_tmp, conn2_1))
-        p2 = multiprocessing.Process(target=task, args=(0, int(n / 2), int(m / 2), m, matrix, kernel, n, m, rules_born, rules_die, matrix_tmp, conn2_2))
-        p3 = multiprocessing.Process(target=task, args=(int(n / 2), n, 0, int(m / 2), matrix, kernel, n, m, rules_born, rules_die, matrix_tmp, conn2_3))
-        p4 = multiprocessing.Process(target=task, args=(int(n / 2), n, int(m / 2), m, matrix, kernel, n, m, rules_born, rules_die, matrix_tmp, conn2_4))
+        p1 = multiprocessing.Process(target=task, args=(
+        0, int(n / 2), 0, int(m / 2), matrix, kernel, n, m, rules_born, rules_die, matrix_tmp, conn2_1))
+        p2 = multiprocessing.Process(target=task, args=(
+        0, int(n / 2), int(m / 2), m, matrix, kernel, n, m, rules_born, rules_die, matrix_tmp, conn2_2))
+        p3 = multiprocessing.Process(target=task, args=(
+        int(n / 2), n, 0, int(m / 2), matrix, kernel, n, m, rules_born, rules_die, matrix_tmp, conn2_3))
+        p4 = multiprocessing.Process(target=task, args=(
+        int(n / 2), n, int(m / 2), m, matrix, kernel, n, m, rules_born, rules_die, matrix_tmp, conn2_4))
         p1.start()
         p2.start()
         p3.start()
@@ -133,26 +140,22 @@ if __name__ == '__main__':
                     matrix[i][j] = data[i][j]
                 elif 0 <= i < int(n / 2) and int(m / 2) <= j < m:
                     matrix[i][j] = data_2[i][j]
-                elif int(n / 2) <= i < n and  0 <= j < int(m / 2):
+                elif int(n / 2) <= i < n and 0 <= j < int(m / 2):
                     matrix[i][j] = data_3[i][j]
                 else:
                     matrix[i][j] = data_4[i][j]
-        # print(time.process_time() - start)
-        # start = time.process_time()
 
-        # plt.figure()
-        # plt.imshow(matrix, cmap='jet')
-        # plt.show()
         im.set_array(matrix)
         global count
+        plt.title(f'Generation: {count}')
         count += 1
-        # plt.title(f'{count}')
         print(time.process_time() - start)
         print(count)
 
         return im,
 
-    animation = FuncAnimation(fig, func=animation_loop,  frames=30, interval=1,
-                                                 cache_frame_data=False)
+
+    animation = FuncAnimation(fig, func=animation_loop, frames=30, interval=1,
+                              cache_frame_data=False)
     # plt.show()
     animation.save('gof.gif')
