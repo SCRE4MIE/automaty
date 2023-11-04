@@ -81,14 +81,14 @@ def matrix_loop_parallel(start_i, end_i, start_j, end_j, matrix, at, sigma, mu, 
 
 if __name__ == '__main__':
 
-    n = 300
-    m = 300
+    n = 200
+    m = 200
     kernel_outer_radius = 12
-    kernel_inner_radius = 8
-    smoothing_factor = 1
+    kernel_inner_radius = 7
+    smoothing_factor = 1.5
     at = 0.1
     sigma = 0.03
-    mu = 0.236
+    mu = 0.23
 
     kernel = create_kernel(kernel_outer_radius, kernel_inner_radius, smoothing_factor=smoothing_factor)
     matrix = np.zeros((n, m))
@@ -105,6 +105,8 @@ if __name__ == '__main__':
                 points_y=[random.randint(60, 90) for _ in range(5000)])
     load_points(matrix=matrix, points_x=[random.randint(90, 120) for _ in range(5000)],
                 points_y=[random.randint(90, 120) for _ in range(5000)])
+    load_points(matrix=matrix, points_x=[random.randint(0, 199) for _ in range(10000)],
+                points_y=[random.randint(0, 199) for _ in range(10000)])
     # ----------------------------
 
     fig = plt.figure(figsize=(8, 8))
@@ -117,6 +119,11 @@ if __name__ == '__main__':
     parent_2, child_2 = multiprocessing.Pipe()
     parent_3, child_3 = multiprocessing.Pipe()
     parent_4, child_4 = multiprocessing.Pipe()
+    parent_5, child_5 = multiprocessing.Pipe()
+    parent_6, child_6 = multiprocessing.Pipe()
+    parent_7, child_7 = multiprocessing.Pipe()
+    parent_8, child_8 = multiprocessing.Pipe()
+    parent_9, child_9 = multiprocessing.Pipe()
 
     def animation_loop(frame):
         global matrix
@@ -125,47 +132,102 @@ if __name__ == '__main__':
         p1 = multiprocessing.Process(
             target=matrix_loop_parallel,
             args=(
-                0, int(n / 2), 0, int(m / 2), matrix, at, sigma, mu, kernel, count_k, shape_kernel, half_size_i_kernel, half_size_j_kernel, n, m, matrix_tmp, child_1,
+                0, int(n / 3), 0, int(m / 3), matrix, at, sigma, mu, kernel, count_k, shape_kernel, half_size_i_kernel, half_size_j_kernel, n, m, matrix_tmp, child_1,
             )
         )
         p2 = multiprocessing.Process(
             target=matrix_loop_parallel,
             args=(
-                0, int(n / 2), int(m / 2), m, matrix, at, sigma, mu, kernel, count_k, shape_kernel, half_size_i_kernel, half_size_j_kernel, n, m, matrix_tmp, child_2,
+                0, int(n / 3), int(m / 3), int(m*2/3), matrix, at, sigma, mu, kernel, count_k, shape_kernel, half_size_i_kernel, half_size_j_kernel, n, m, matrix_tmp, child_2,
             )
         )
         p3 = multiprocessing.Process(
             target=matrix_loop_parallel,
             args=(
-                int(n / 2), n, 0, int(m / 2), matrix, at, sigma, mu, kernel, count_k, shape_kernel, half_size_i_kernel, half_size_j_kernel, n, m, matrix_tmp, child_3,
+                0, int(n / 3), int(m*2/3), m, matrix, at, sigma, mu, kernel, count_k, shape_kernel, half_size_i_kernel, half_size_j_kernel, n, m, matrix_tmp, child_3,
             )
         )
         p4 = multiprocessing.Process(
             target=matrix_loop_parallel,
             args=(
-                int(n / 2), n, int(m / 2), m, matrix, at, sigma, mu, kernel, count_k, shape_kernel, half_size_i_kernel, half_size_j_kernel, n, m, matrix_tmp, child_4,
+                int(n / 3), int(n*2/3), 0, int(m/3), matrix, at, sigma, mu, kernel, count_k, shape_kernel, half_size_i_kernel, half_size_j_kernel, n, m, matrix_tmp, child_4,
+            )
+        )
+        p5 = multiprocessing.Process(
+            target=matrix_loop_parallel,
+            args=(
+                int(n / 3), int(n*2/3), int(m/3), int(m*2/3), matrix, at, sigma, mu, kernel, count_k, shape_kernel, half_size_i_kernel,
+                half_size_j_kernel, n, m, matrix_tmp, child_5,
+            )
+        )
+        p6 = multiprocessing.Process(
+            target=matrix_loop_parallel,
+            args=(
+                int(n / 3), int(n*2/3), int(m*2/3), m, matrix, at, sigma, mu, kernel, count_k, shape_kernel, half_size_i_kernel,
+                half_size_j_kernel, n, m, matrix_tmp, child_6,
+            )
+        )
+        p7 = multiprocessing.Process(
+            target=matrix_loop_parallel,
+            args=(
+                int(n*2/3), n, 0, int(m/3), matrix, at, sigma, mu, kernel, count_k, shape_kernel, half_size_i_kernel,
+                half_size_j_kernel, n, m, matrix_tmp, child_7,
+            )
+        )
+        p8 = multiprocessing.Process(
+            target=matrix_loop_parallel,
+            args=(
+                int(n*2/3), n, int(m / 3), int(m*2/3), matrix, at, sigma, mu, kernel, count_k, shape_kernel, half_size_i_kernel,
+                half_size_j_kernel, n, m, matrix_tmp, child_8,
+            )
+        )
+        p9 = multiprocessing.Process(
+            target=matrix_loop_parallel,
+            args=(
+                int(n*2/3), n, int(m*2/3), m, matrix, at, sigma, mu, kernel, count_k, shape_kernel, half_size_i_kernel,
+                half_size_j_kernel, n, m, matrix_tmp, child_9,
             )
         )
         p1.start()
         p2.start()
         p3.start()
         p4.start()
+        p5.start()
+        p6.start()
+        p7.start()
+        p8.start()
+        p9.start()
 
         data_1 = parent_1.recv()
         data_2 = parent_2.recv()
         data_3 = parent_3.recv()
         data_4 = parent_4.recv()
+        data_5 = parent_5.recv()
+        data_6 = parent_6.recv()
+        data_7 = parent_7.recv()
+        data_8 = parent_8.recv()
+        data_9 = parent_9.recv()
 
         for i in range(matrix.shape[0]):
             for j in range(matrix.shape[1]):
-                if 0 <= i < int(n / 2) and 0 <= j < int(m / 2):
+                if 0 <= i < int(n / 3) and 0 <= j < int(m / 3):
                     matrix[i][j] = data_1[i][j]
-                elif 0 <= i < int(n / 2) and int(m / 2) <= j < m:
+                elif 0 <= i < int(n / 3) and int(m / 3) <= j < int(m*2/3):
                     matrix[i][j] = data_2[i][j]
-                elif int(n / 2) <= i < n and 0 <= j < int(m / 2):
+                elif 0 <= i < int(n / 3) and int(m*2/3) <= j < m:
                     matrix[i][j] = data_3[i][j]
-                else:
+                elif int(n / 3) <= i < int(n*2/3) and 0 <= j < int(m/3):
                     matrix[i][j] = data_4[i][j]
+                elif int(n / 3) <= i < int(n*2/3) and int(m/3) <= j < int(m*2/3):
+                    matrix[i][j] = data_5[i][j]
+                elif int(n / 3) <= i < int(n*2/3) and int(m*2/3) <= j < m:
+                    matrix[i][j] = data_6[i][j]
+                elif int(n*2/3) <= i < n and 0 <= j < int(m/3):
+                    matrix[i][j] = data_7[i][j]
+                elif int(n*2/3) <= i < n and int(m / 3) <= j < int(m*2/3):
+                    matrix[i][j] = data_8[i][j]
+                else:
+                    matrix[i][j] = data_9[i][j]
 
         im.set_array(matrix)
         global count
@@ -180,6 +242,3 @@ if __name__ == '__main__':
     # plt.show()
     animation.save('lenia.gif')
 
-
-# 1:14 normal
-# parrales 0:33:
