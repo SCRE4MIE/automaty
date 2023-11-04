@@ -7,8 +7,9 @@ import time
 
 from matplotlib.animation import FuncAnimation
 
-matplotlib.use('macosx')
+# matplotlib.use('macosx')
 # matplotlib.use('TkAgg')
+matplotlib.use("Agg")
 
 
 def load_points(matrix, points_x: list, points_y: list):
@@ -107,7 +108,7 @@ if __name__ == '__main__':
     conn1_4, conn2_4 = multiprocessing.Pipe()
 
     fig = plt.figure(figsize=(8, 8))
-    im = plt.imshow(matrix, cmap='jet', interpolation='nearest')
+    im = plt.imshow(matrix, cmap='jet', animated=True)
     plt.axis('off')
     count = 0
 
