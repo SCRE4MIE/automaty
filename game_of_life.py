@@ -7,9 +7,9 @@ import time
 
 from matplotlib.animation import FuncAnimation
 
-# matplotlib.use('macosx')
+matplotlib.use('macosx')
 # matplotlib.use('TkAgg')
-matplotlib.use("Agg")
+# matplotlib.use("Agg")
 
 
 def load_points(matrix, points_x: list, points_y: list):
@@ -158,5 +158,5 @@ if __name__ == '__main__':
 
     animation = FuncAnimation(fig, func=animation_loop, frames=30, interval=1,
                               cache_frame_data=False)
-    # plt.show()
-    animation.save('gof.gif')
+    plt.show()
+    # animation.save('gof.gif')
