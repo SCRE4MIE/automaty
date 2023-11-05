@@ -4,6 +4,7 @@ import matplotlib
 import multiprocessing
 import random
 import time
+import tkinter as tk
 
 from matplotlib.animation import FuncAnimation
 
@@ -92,16 +93,31 @@ def matrix_loop_parallel(start_i, end_i, start_j, end_j, matrix, kernel, n, m, r
     pipe.send(matrix_tmp)
 
 
+
+def map_value_to_color(value):
+    # Map the value to a grayscale color
+    grayscale_value = int(value * 255)
+    return f'#{grayscale_value:02x}{grayscale_value:02x}{grayscale_value:02x}'
+
+
+def display_matrix(matrix):
+    for i in range(len(matrix)):
+        for j in range(len(matrix[i])):
+            value = matrix[i][j]
+            color = map_value_to_color(value)
+            label = tk.Label(root, text="", bg=color, width=1, height=1)
+            label.grid(row=i, column=j)
+
+
 if __name__ == '__main__':
     rules_born, rules_die = translate_rules('23/3')
-    n = 1000
-    m = 1000
-    frames = 200
+    n = 60
+    m = 60
     kernel = create_kernel(outer_radius=2, inner_radius=1)
     matrix = np.zeros((n, m))
     # load_file(matrix, 'data.dat')
-    load_points(matrix, points_x=[random.randint(0, 999) for _ in range(10000)],
-                points_y=[random.randint(0, 999) for _ in range(10000)])
+    load_points(matrix, points_x=[random.randint(0, 59) for _ in range(50)],
+                points_y=[random.randint(0, 59) for _ in range(50)])
 
     parent_1, child_1 = multiprocessing.Pipe()
     parent_2, child_2 = multiprocessing.Pipe()
@@ -113,13 +129,10 @@ if __name__ == '__main__':
     parent_8, child_8 = multiprocessing.Pipe()
     parent_9, child_9 = multiprocessing.Pipe()
 
-    fig = plt.figure(figsize=(8, 8))
-    im = plt.imshow(matrix, cmap='jet', animated=True)
-    plt.axis('off')
     count = 0
 
 
-    def animation_loop(frame):
+    def animation_loop():
         start = time.process_time()
         global matrix
         matrix_tmp = np.zeros((n, m))
@@ -220,17 +233,18 @@ if __name__ == '__main__':
                 else:
                     matrix[i][j] = data_9[i][j]
 
-        im.set_array(matrix)
+        display_matrix(matrix)
+
         global count
-        plt.title(f'Generation: {count}')
         count += 1
         print(time.process_time() - start)
         print(count)
 
-        return im,
+    root = tk.Tk()
+    animation_loop()
+    root.after(1000, animation_loop)
+    root.mainloop()
 
 
-    animation = FuncAnimation(fig, func=animation_loop, frames=frames, interval=1,
-                              cache_frame_data=False)
-    # plt.show()
-    animation.save('gof.gif')
+
+
