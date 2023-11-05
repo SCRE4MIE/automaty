@@ -120,10 +120,10 @@ if __name__ == '__main__':
     # n = 300
     # m = 300
     kernel_outer_radius = 13
-    kernel_inner_radius = 1
-    smoothing_factor = 1
+    kernel_inner_radius = 6
+    smoothing_factor = 2
     at = 0.1
-    sigma = 0.014
+    sigma = 0.015
     mu = 0.15
 
     frames = 10
