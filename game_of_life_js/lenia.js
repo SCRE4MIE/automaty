@@ -141,14 +141,6 @@ const loadPoints = (array_x, array_y, matrix) => {
     return matrix
 }
 
-// matrix = loadPoints(
-//     [1, 2, 1, 2, 11, 11, 11, 12, 12, 13, 13, 14, 14, 15, 16, 16, 17, 17, 17, 18, 21, 21, 21, 22, 22, 22, 23, 23, 25, 25, 25, 25, 35, 35, 36, 36, 100, 100, 101, 100, 99],
-//     [30, 30, 31, 31, 30, 31, 32, 29, 33, 28, 34, 28, 34, 31, 29, 33, 30, 32, 31, 31, 30, 29, 28, 30, 29, 28, 27, 31, 31, 32, 27, 26, 28, 29, 28, 29, 100, 99, 99, 101, 100],
-//     matrix
-// )
-
-
-
 const drawMatrix = (ctx, canvas,  matrix, n, m) => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     let cellSize = canvas.width / m;
