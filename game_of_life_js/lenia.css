@@ -1,0 +1,26 @@
+body {
+    background-color: black;
+    color: white;
+}
+
+canvas {
+    border: 1px solid blue;
+}
+
+.main-wrapper {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    gap: 20px
+}
+
+.main-wrapper-col {
+
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-content: center;
+}
